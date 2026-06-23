@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Calorie Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="quote-container">
+            <h1 class="quote">
+                <span class="color-1">EAT</span> <span class="color-2">CLEAN</span>,<br>
+                <span class="color-3">DRINK</span> <span class="color-4">WATER</span>,<br>
+                <span class="color-5">STAY</span> <span class="color-6">ACTIVE</span>,<br>
+                <span class="color-7">BE</span> <span class="color-8">HEALTHY</span>
+            </h1>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <header>
+            <h1>🍎 Food Calorie Calculator</h1>
+            <p class="subtitle">Track your daily calorie intake</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Daily Summary Card -->
+            <div class="card summary-card">
+                <h2>Daily Summary</h2>
+                <div class="summary-stats">
+                    <div class="stat">
+                        <span class="stat-label">Total Calories</span>
+                        <span class="stat-value" id="totalCalories">0</span>
+                        <span class="stat-unit">kcal</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total Protein</span>
+                        <span class="stat-value" id="totalProtein">0</span>
+                        <span class="stat-unit">g</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total Carbs</span>
+                        <span class="stat-value" id="totalCarbs">0</span>
+                        <span class="stat-unit">g</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total Fat</span>
+                        <span class="stat-value" id="totalFat">0</span>
+                        <span class="stat-unit">g</span>
+                    </div>
+                </div>
+                <button class="btn btn-danger" onclick="clearDailyLog()">Clear Daily Log</button>
+            </div>
+
+            <!-- BMI Calculator Card -->
+            <div class="card bmi-card">
+                <h2>BMI Calculator</h2>
+                <div class="bmi-calculator">
+                    <div class="bmi-input-group">
+                        <label for="height">Height (cm):</label>
+                        <input type="number" id="height" placeholder="Enter height in cm" min="50" max="250">
+                    </div>
+                    <div class="bmi-input-group">
+                        <label for="weight">Weight (kg):</label>
+                        <input type="number" id="weight" placeholder="Enter weight in kg" min="20" max="300">
+                    </div>
+                    <button class="btn btn-primary bmi-btn" onclick="calculateBMI()">Calculate BMI</button>
+                    <div class="bmi-result" id="bmiResult" style="display: none;">
+                        <p><strong>Your BMI:</strong> <span id="bmiValue">0</span></p>
+                        <p><strong>Status:</strong> <span id="bmiStatus">Normal</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Food Search Section -->
+            <div class="card search-card">
+                <h2>Search Food</h2>
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="foodSearch" 
+                        placeholder="Search for food..." 
+                        oninput="filterFoods()"
+                    >
+                    <span class="search-icon">🔍</span>
+                </div>
+                <div class="food-categories">
+                    <button class="category-btn active" onclick="filterByCategory('all')">All</button>
+                    <button class="category-btn" onclick="filterByCategory('fruits')">Fruits</button>
+                    <button class="category-btn" onclick="filterByCategory('vegetables')">Vegetables</button>
+                    <button class="category-btn" onclick="filterByCategory('proteins')">Proteins</button>
+                    <button class="category-btn" onclick="filterByCategory('grains')">Grains</button>
+                    <button class="category-btn" onclick="filterByCategory('dairy')">Dairy</button>
+                    <button class="category-btn" onclick="filterByCategory('snacks')">Snacks</button>
+                    <button class="category-btn" onclick="filterByCategory('beverages')">Beverages</button>
+                    <button class="category-btn" onclick="filterByCategory('indian')">Indian Cuisine</button>
+                </div>
+            </div>
+
+            <!-- Food List -->
+            <div class="card food-list-card">
+                <h2>Food Items</h2>
+                <div class="food-list" id="foodList"></div>
+            </div>
+
+            <!-- Daily Log -->
+            <div class="card daily-log-card">
+                <h2>Today's Log</h2>
+                <div class="daily-log" id="dailyLog">
+                    <p class="empty-message">No items added yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Food Modal -->
+    <div class="modal" id="addFoodModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalFoodName">Food Name</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="food-info">
+                    <p><strong>Calories per serving:</strong> <span id="modalCalories">0</span> kcal</p>
+                    <p><strong>Protein per serving:</strong> <span id="modalProtein">0</span> g</p>
+                    <p><strong>Carbs per serving:</strong> <span id="modalCarbs">0</span> g</p>
+                    <p><strong>Fat per serving:</strong> <span id="modalFat">0</span> g</p>
+                    <p><strong>Serving Size:</strong> <span id="modalServingSize">100</span> <span id="modalServingUnit">g</span></p>
+                </div>
+                <div class="input-mode-selector">
+                    <label><strong>Select Input Mode:</strong></label>
+                    <div class="mode-buttons">
+                        <button class="mode-btn active" onclick="setInputMode('quantity')" id="mode-quantity">Quantity</button>
+                        <button class="mode-btn" onclick="setInputMode('grams')" id="mode-grams">Grams</button>
+                        <button class="mode-btn" onclick="setInputMode('size')" id="mode-size">Size</button>
+                    </div>
+                </div>
+                <div class="portion-control" id="quantity-control">
+                    <label for="quantity">Quantity:</label>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                        <input 
+                            type="number" 
+                            id="quantity" 
+                            value="1" 
+                            min="1" 
+                            max="20"
+                            oninput="updateCalculatedCalories()"
+                        >
+                        <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                    </div>
+                </div>
+                <div class="portion-control" id="grams-control" style="display: none;">
+                    <label for="grams">Portion Size (grams):</label>
+                    <input 
+                        type="number" 
+                        id="grams" 
+                        value="100" 
+                        min="1" 
+                        max="1000"
+                        oninput="updateCalculatedCalories()"
+                    >
+                </div>
+                <div class="portion-control" id="size-control" style="display: none;">
+                    <label for="size">Size:</label>
+                    <select id="size" onchange="updateCalculatedCalories()">
+                        <option value="small">Small (50%)</option>
+                        <option value="medium" selected>Medium (100%)</option>
+                        <option value="large">Large (150%)</option>
+                    </select>
+                </div>
+                <div class="calculated-info">
+                    <p><strong>Total Calories:</strong> <span id="calculatedCalories">0</span> kcal</p>
+                    <p><strong>Protein:</strong> <span id="calculatedProtein">0</span> g</p>
+                    <p><strong>Carbs:</strong> <span id="calculatedCarbs">0</span> g</p>
+                    <p><strong>Fat:</strong> <span id="calculatedFat">0</span> g</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addToDailyLog()">Add to Log</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="foodData.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
